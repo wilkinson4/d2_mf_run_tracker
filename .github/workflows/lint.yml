@@ -22,5 +22,5 @@ jobs:
         shell: bash
 
       - name: Run biome and tsc
-        run: bun check
+        run: bun run ci
         shell: bash

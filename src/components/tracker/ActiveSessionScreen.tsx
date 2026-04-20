@@ -46,22 +46,6 @@ export function ActiveSessionScreen({
     <div className="space-y-10">
       <SectionHeader title={locationName.toUpperCase()} />
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <StatCard
-          label="Session Time"
-          value={
-            sessionElapsedMs === null
-              ? "--"
-              : formatDuration(sessionElapsedMs, { includeHundredths: true })
-          }
-        />
-        <StatCard label="Runs" value={completedRuns.length} />
-        <StatCard
-          label="Avg Run Time"
-          value={formatDuration(averageRunMs, { includeHundredths: true })}
-        />
-      </section>
-
       {activeSession?.activeRun ? (
         <section className="tracker-current-run-panel flex flex-col items-center gap-6 px-6 py-10 text-center sm:px-8">
           <SectionLabel>&mdash; Current Run &mdash;</SectionLabel>
@@ -85,13 +69,24 @@ export function ActiveSessionScreen({
           >
             Start Run
           </Button>
-          <p className="tracker-copy-muted text-lg sm:text-xl">
-            {isDraft
-              ? "Your session begins when you start the first run."
-              : "Click to manually start a run or enter game"}
-          </p>
         </section>
       )}
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        <StatCard
+          label="Session Time"
+          value={
+            sessionElapsedMs === null
+              ? "--"
+              : formatDuration(sessionElapsedMs, { includeHundredths: true })
+          }
+        />
+        <StatCard label="Runs" value={completedRuns.length} />
+        <StatCard
+          label="Avg Run Time"
+          value={formatDuration(averageRunMs, { includeHundredths: true })}
+        />
+      </section>
 
       <section className="tracker-panel px-6 py-6 sm:px-8 sm:py-8">
         <div className="space-y-6">

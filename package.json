@@ -8,8 +8,9 @@
     "build": "vite build && tsc",
     "preview": "vite preview",
     "tauri": "tauri",
-    "check": "biome ci && tsc --noEmit",
+    "ci": "biome ci && tsc --noEmit",
     "fix": "biome lint --write",
+    "lint-staged": "biome check && tsc --noEmit",
     "prepare": "husky"
   },
   "dependencies": {

@@ -1,23 +1,23 @@
-# D2 MF Tracker
+<div align="center">
+  <img src="src-tauri/icons/icon.png" alt="Logo" width="200" />
+  <h1>D2 MF Tracker</h1>
+  <p>A lightweight cross-platform desktop app for manually tracking Diablo 2 magic find sessions.</p>
+</div>
 
-A Tauri desktop app for manually tracking Diablo 2 / Diablo 2 Resurrected magic find sessions and runs.
+----
 
-## Current scope
+## Features
 
-- manual session creation
-- manual run start / end / cancel flow
-- persistent local SQLite storage through the Tauri SQL plugin
-- Diablo-inspired dark gold UI
-- bundled Exocet display font assets from `src/assets`
+- Sessions and session history
+- Manual run tracking with hotkey support
 
-## Development
+## Planned Features
+
+- Auto-tracking for offline mode
+- In-game overlay
+
+### Development
 
 ```bash
 bun run dev
-```
-
-## Production build
-
-```bash
-bun run build
 ```
