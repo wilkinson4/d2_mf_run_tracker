@@ -1,7 +1,23 @@
-# Tauri + React + Typescript
+# D2 MF Tracker
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+A Tauri desktop app for manually tracking Diablo 2 / Diablo 2 Resurrected magic find sessions and runs.
 
-## Recommended IDE Setup
+## Current scope
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- manual session creation
+- manual run start / end / cancel flow
+- persistent local SQLite storage through the Tauri SQL plugin
+- Diablo-inspired dark gold UI
+- bundled Exocet display font assets from `src/assets`
+
+## Development
+
+```bash
+bun run dev
+```
+
+## Production build
+
+```bash
+bun run build
+```

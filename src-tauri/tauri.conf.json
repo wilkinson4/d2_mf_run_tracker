@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "d2_mf_tracker",
+  "productName": "D2 MF Tracker",
   "version": "0.1.0",
   "identifier": "com.d2_mf_tracker.app",
   "build": {
@@ -12,9 +12,10 @@
   "app": {
     "windows": [
       {
-        "title": "d2_mf_tracker",
-        "width": 800,
-        "height": 600
+        "title": "D2 MF Tracker",
+        "width": 1400,
+        "height": 960,
+        "resizable": true
       }
     ],
     "security": {
@@ -34,7 +35,7 @@
   },
   "plugins": {
     "sql": {
-      "preload": ["sqlite:mydatabase.db"]
+      "preload": ["sqlite:run_tracker.db"]
     }
   }
 }
