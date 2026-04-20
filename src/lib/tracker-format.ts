@@ -7,7 +7,9 @@ export function parseSqliteDate(value: string) {
 }
 
 export function getDurationMs(startedAt: string, endedAt: string) {
-  return parseSqliteDate(endedAt).getTime() - parseSqliteDate(startedAt).getTime();
+  return (
+    parseSqliteDate(endedAt).getTime() - parseSqliteDate(startedAt).getTime()
+  );
 }
 
 export function formatDuration(

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { type CompletedSessionSummary } from "@/lib/tracker-db";
+import type { CompletedSessionSummary } from "@/lib/tracker-db";
 
 import { SectionHeader } from "./SectionHeader";
 import { SectionLabel } from "./SectionLabel";
@@ -16,7 +16,10 @@ export function HomeScreen({
     <div className="space-y-10">
       <SectionHeader title="Magic Finding Sessions" />
 
-      <Button className="tracker-action-primary w-full py-10 text-2xl" onClick={onCreateSession}>
+      <Button
+        className="tracker-action-primary w-full py-10 text-2xl"
+        onClick={onCreateSession}
+      >
         + Start New Session
       </Button>
 

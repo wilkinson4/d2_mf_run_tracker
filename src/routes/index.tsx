@@ -11,7 +11,8 @@ export const Route = createFileRoute("/")({
 
 function IndexRoute() {
   const navigate = useNavigate();
-  const { activeSession, completedSessions, isLoading, loadError } = useTrackerData();
+  const { activeSession, completedSessions, isLoading, loadError } =
+    useTrackerData();
 
   useEffect(() => {
     if (!isLoading && activeSession) {
