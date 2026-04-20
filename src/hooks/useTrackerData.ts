@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
-  getActiveSession,
-  getCompletedSessionSummaries,
-  getFarmLocations,
   type ActiveSession,
   type CompletedSessionSummary,
   type FarmLocation,
+  getActiveSession,
+  getCompletedSessionSummaries,
+  getFarmLocations,
 } from "@/lib/tracker-db";
 import { getTrackerErrorMessage } from "@/lib/tracker-error";
 
@@ -18,8 +18,12 @@ type TrackerData = {
 
 export function useTrackerData() {
   const [farmLocations, setFarmLocations] = useState<FarmLocation[]>([]);
-  const [completedSessions, setCompletedSessions] = useState<CompletedSessionSummary[]>([]);
-  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
+  const [completedSessions, setCompletedSessions] = useState<
+    CompletedSessionSummary[]
+  >([]);
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 

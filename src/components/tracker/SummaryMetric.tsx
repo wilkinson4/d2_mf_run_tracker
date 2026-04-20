@@ -10,7 +10,9 @@ export function SummaryMetric({
       <p className="tracker-copy-muted text-xs uppercase tracking-[0.28em] sm:text-sm">
         {label}
       </p>
-      <p className="tracker-display text-2xl text-primary sm:text-4xl">{value}</p>
+      <p className="tracker-display text-2xl text-primary sm:text-4xl">
+        {value}
+      </p>
     </div>
   );
 }

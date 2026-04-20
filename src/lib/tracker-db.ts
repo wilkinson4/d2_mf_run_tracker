@@ -69,17 +69,26 @@ function mapCompletedSession(session: SessionRow, runs: RunRecord[]) {
 
   return {
     ...session,
-    durationMs: getDurationMs(session.startedAt, session.endedAt ?? session.startedAt),
+    durationMs: getDurationMs(
+      session.startedAt,
+      session.endedAt ?? session.startedAt,
+    ),
     runs,
     averageRunMs:
       completedRunDurations.length > 0
-        ? completedRunDurations.reduce((total, duration) => total + duration, 0) /
-          completedRunDurations.length
+        ? completedRunDurations.reduce(
+            (total, duration) => total + duration,
+            0,
+          ) / completedRunDurations.length
         : null,
     fastestRunMs:
-      completedRunDurations.length > 0 ? Math.min(...completedRunDurations) : null,
+      completedRunDurations.length > 0
+        ? Math.min(...completedRunDurations)
+        : null,
     slowestRunMs:
-      completedRunDurations.length > 0 ? Math.max(...completedRunDurations) : null,
+      completedRunDurations.length > 0
+        ? Math.max(...completedRunDurations)
+        : null,
     totalRuns: completedRunDurations.length,
   } satisfies CompletedSessionSummary;
 }
@@ -128,9 +137,10 @@ async function ensureFarmLocation(name: string) {
     return existing[0];
   }
 
-  await database.execute("INSERT INTO farm_locations (location_name) VALUES (?)", [
-    name,
-  ]);
+  await database.execute(
+    "INSERT INTO farm_locations (location_name) VALUES (?)",
+    [name],
+  );
 
   const inserted = await database.select<FarmLocationRow[]>(
     `
@@ -308,7 +318,9 @@ export async function completeRun(runId: number, sessionId: number) {
   const activeSession = await getActiveSession();
 
   if (!activeSession || activeSession.id !== sessionId) {
-    throw new Error("Unable to refresh the active session after ending the run.");
+    throw new Error(
+      "Unable to refresh the active session after ending the run.",
+    );
   }
 
   return activeSession;
@@ -317,7 +329,9 @@ export async function completeRun(runId: number, sessionId: number) {
 export async function cancelRun(runId: number, sessionId: number) {
   const database = await getDatabase();
 
-  await database.execute("DELETE FROM runs WHERE id = ? AND ended_at IS NULL", [runId]);
+  await database.execute("DELETE FROM runs WHERE id = ? AND ended_at IS NULL", [
+    runId,
+  ]);
 
   const remainingRuns = await getSessionRuns(sessionId);
 
@@ -329,7 +343,9 @@ export async function cancelRun(runId: number, sessionId: number) {
   const activeSession = await getActiveSession();
 
   if (!activeSession || activeSession.id !== sessionId) {
-    throw new Error("Unable to refresh the active session after canceling the run.");
+    throw new Error(
+      "Unable to refresh the active session after canceling the run.",
+    );
   }
 
   return activeSession;

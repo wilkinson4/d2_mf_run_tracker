@@ -34,11 +34,16 @@ export function NewSessionScreen({
             placeholder="Enter farming area..."
             className="tracker-display h-20 px-6 text-2xl text-foreground placeholder:text-muted-foreground/80 sm:text-4xl"
           />
-          {error ? <p className="text-sm text-destructive sm:text-base">{error}</p> : null}
+          {error ? (
+            <p className="text-sm text-destructive sm:text-base">{error}</p>
+          ) : null}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Button className="tracker-action-primary py-7 text-2xl" onClick={onStart}>
+          <Button
+            className="tracker-action-primary py-7 text-2xl"
+            onClick={onStart}
+          >
             Start Session
           </Button>
           <Button

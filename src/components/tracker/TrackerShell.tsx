@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type TrackerShellProps = {
   children: ReactNode;
@@ -23,8 +23,12 @@ export function TrackerShell({
         {isLoading ? (
           <div className="flex min-h-[70vh] items-center justify-center">
             <div className="space-y-4 text-center">
-              <p className="tracker-heading text-3xl sm:text-5xl">Magic Finding Sessions</p>
-              <p className="tracker-copy-muted text-lg">Loading your tracker...</p>
+              <p className="tracker-heading text-3xl sm:text-5xl">
+                Magic Finding Sessions
+              </p>
+              <p className="tracker-copy-muted text-lg">
+                Loading your tracker...
+              </p>
             </div>
           </div>
         ) : (

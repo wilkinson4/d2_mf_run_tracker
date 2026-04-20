@@ -26,7 +26,8 @@ const POPULAR_AREA_NAMES = [
 
 function NewSessionRoute() {
   const navigate = useNavigate();
-  const { activeSession, farmLocations, isLoading, loadError } = useTrackerData();
+  const { activeSession, farmLocations, isLoading, loadError } =
+    useTrackerData();
   const [areaName, setAreaName] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -39,7 +40,9 @@ function NewSessionRoute() {
   const popularAreas = useMemo(
     () =>
       POPULAR_AREA_NAMES.map(
-        (name) => farmLocations.find((location) => location.name === name)?.name ?? name,
+        (name) =>
+          farmLocations.find((location) => location.name === name)?.name ??
+          name,
       ),
     [farmLocations],
   );

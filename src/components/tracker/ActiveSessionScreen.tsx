@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { type ActiveSession } from "@/lib/tracker-db";
+import type { ActiveSession } from "@/lib/tracker-db";
 import { formatDuration, parseSqliteDate } from "@/lib/tracker-format";
 
 import { SectionHeader } from "./SectionHeader";
@@ -106,7 +106,9 @@ export function ActiveSessionScreen({
                 >
                   <span className="text-lg sm:text-2xl">Run #{index + 1}</span>
                   <span className="tracker-display text-2xl text-primary sm:text-4xl">
-                    {formatDuration(run.durationMs, { includeHundredths: true })}
+                    {formatDuration(run.durationMs, {
+                      includeHundredths: true,
+                    })}
                   </span>
                 </div>
               ))}
@@ -121,8 +123,9 @@ export function ActiveSessionScreen({
 
           {activeSession?.activeRun ? (
             <div className="tracker-copy-muted border-t border-border/40 pt-4 text-base sm:text-lg">
-              A run is currently in progress. Use <span className="text-primary">End Run</span>{" "}
-              to save it or <span className="text-primary">Cancel</span> to discard it.
+              A run is currently in progress. Use{" "}
+              <span className="text-primary">End Run</span> to save it or{" "}
+              <span className="text-primary">Cancel</span> to discard it.
             </div>
           ) : null}
         </div>

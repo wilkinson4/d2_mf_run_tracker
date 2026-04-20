@@ -3,17 +3,17 @@ import { useEffect, useState } from "react";
 
 import { ActiveSessionScreen } from "@/components/tracker/ActiveSessionScreen";
 import { TrackerShell } from "@/components/tracker/TrackerShell";
+import { useTrackerData } from "@/hooks/useTrackerData";
 import {
+  type ActiveSession,
   cancelRun,
   completeRun,
   createSessionAndStartRun,
   discardSession,
   endSession,
   startRun,
-  type ActiveSession,
 } from "@/lib/tracker-db";
 import { getTrackerErrorMessage } from "@/lib/tracker-error";
-import { useTrackerData } from "@/hooks/useTrackerData";
 
 type SessionSearch = {
   area?: string;
@@ -29,8 +29,10 @@ export const Route = createFileRoute("/session")({
 function SessionRoute() {
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const { activeSession, isLoading, loadError, refreshTracker } = useTrackerData();
-  const [transitionSession, setTransitionSession] = useState<ActiveSession | null>(null);
+  const { activeSession, isLoading, loadError, refreshTracker } =
+    useTrackerData();
+  const [transitionSession, setTransitionSession] =
+    useState<ActiveSession | null>(null);
   const [screenError, setScreenError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -89,27 +91,33 @@ function SessionRoute() {
       return;
     }
 
-    void runAction(resolvedActiveSession?.activeRun ? "finish-run" : "start-run", async () => {
-      if (search.area && !resolvedActiveSession) {
-        const createdSession = await createSessionAndStartRun(search.area);
-        setTransitionSession(createdSession);
-        void navigate({ to: "/session", search: {}, replace: true });
+    void runAction(
+      resolvedActiveSession?.activeRun ? "finish-run" : "start-run",
+      async () => {
+        if (search.area && !resolvedActiveSession) {
+          const createdSession = await createSessionAndStartRun(search.area);
+          setTransitionSession(createdSession);
+          void navigate({ to: "/session", search: {}, replace: true });
+          await refreshTracker();
+          return;
+        }
+
+        if (!resolvedActiveSession) {
+          return;
+        }
+
+        if (resolvedActiveSession.activeRun) {
+          await completeRun(
+            resolvedActiveSession.activeRun.id,
+            resolvedActiveSession.id,
+          );
+        } else {
+          await startRun(resolvedActiveSession.id);
+        }
+
         await refreshTracker();
-        return;
-      }
-
-      if (!resolvedActiveSession) {
-        return;
-      }
-
-      if (resolvedActiveSession.activeRun) {
-        await completeRun(resolvedActiveSession.activeRun.id, resolvedActiveSession.id);
-      } else {
-        await startRun(resolvedActiveSession.id);
-      }
-
-      await refreshTracker();
-    });
+      },
+    );
   };
 
   const handleCancelRun = () => {
