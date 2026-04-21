@@ -13,23 +13,21 @@ export function SessionHistoryCard({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <article className="tracker-panel px-6 py-6 sm:px-8 sm:py-8">
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-2">
-            <h3 className="tracker-display text-3xl text-primary">
+    <article className="tracker-session-card">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <h3 className="tracker-display text-xl text-primary sm:text-2xl">
               {session.locationName}
             </h3>
-            <p className="tracker-copy-muted text-base">
+            <p className="tracker-copy-muted text-xs sm:text-sm">
               {formatSessionDate(session.startedAt)}
             </p>
           </div>
-          <div className="tracker-panel tracker-copy-muted inline-flex min-w-16 items-center justify-center px-4 py-3">
-            #{session.id}
-          </div>
+          <div className="tracker-session-badge">#{session.id}</div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="tracker-session-metrics">
           <SummaryMetric
             label="Duration"
             value={formatDuration(session.durationMs)}
@@ -49,35 +47,32 @@ export function SessionHistoryCard({
           />
         </div>
 
-        <div className="border-t border-border/60 pt-5">
+        <div className="border-t border-border/60 pt-3">
           <button
             type="button"
-            className="tracker-copy-muted inline-flex items-center gap-3 text-left text-lg uppercase tracking-[0.12em] transition-colors hover:text-primary"
+            className="tracker-copy-muted inline-flex items-center gap-2 text-left text-xs uppercase tracking-[0.18em] transition-colors hover:text-primary"
             onClick={() => setIsExpanded((current) => !current)}
           >
-            <span className="text-sm">{isExpanded ? "▼" : "▶"}</span>
+            <span className="text-[0.65rem]">{isExpanded ? "▼" : "▶"}</span>
             View All Runs ({session.totalRuns})
           </button>
 
           {isExpanded ? (
             session.runs.length > 0 ? (
-              <div className="mt-5 space-y-3">
+              <div className="mt-3">
                 {session.runs.map((run, index) => (
-                  <div
-                    key={run.id}
-                    className="tracker-copy-muted flex items-center justify-between border-t border-border/30 pt-3"
-                  >
-                    <span className="text-base sm:text-lg">
+                  <div key={run.id} className="tracker-run-history-row">
+                    <span className="text-sm sm:text-base">
                       Run #{index + 1}
                     </span>
-                    <span className="tracker-display text-xl text-primary sm:text-2xl">
+                    <span className="tracker-display text-base text-primary sm:text-lg">
                       {formatDuration(run.durationMs)}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="mt-5 tracker-copy-muted">
+              <p className="mt-3 text-sm tracker-copy-muted">
                 No runs were recorded in this session.
               </p>
             )

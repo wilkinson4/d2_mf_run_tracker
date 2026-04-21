@@ -43,17 +43,17 @@ export function ActiveSessionScreen({
       : null;
 
   return (
-    <div className="space-y-10">
+    <div className="tracker-screen">
       <SectionHeader title={locationName.toUpperCase()} />
 
       {activeSession?.activeRun ? (
-        <section className="tracker-current-run-panel flex flex-col items-center gap-6 px-6 py-10 text-center sm:px-8">
+        <section className="tracker-current-run-panel flex flex-col items-center gap-3 px-4 py-4 text-center sm:px-5">
           <SectionLabel>&mdash; Current Run &mdash;</SectionLabel>
-          <p className="tracker-display text-5xl text-[var(--tracker-current-run-accent)] sm:text-7xl">
+          <p className="tracker-display text-5xl text-[var(--tracker-current-run-accent)] sm:text-[3.25rem]">
             {formatDuration(currentRunElapsedMs, { includeHundredths: true })}
           </p>
           <Button
-            className="tracker-action-primary min-w-72 px-14 py-8 text-3xl"
+            className="tracker-action-primary h-11 min-w-[200px] px-8 text-base sm:text-lg"
             disabled={busyAction !== null}
             onClick={onToggleRun}
           >
@@ -61,9 +61,9 @@ export function ActiveSessionScreen({
           </Button>
         </section>
       ) : (
-        <section className="flex flex-col items-center gap-6 py-2 text-center">
+        <section className="flex flex-col items-center gap-3 py-1 text-center">
           <Button
-            className="tracker-action-primary min-w-72 px-14 py-8 text-3xl"
+            className="tracker-action-primary h-11 min-w-[200px] px-8 text-base sm:text-lg"
             disabled={busyAction !== null}
             onClick={onToggleRun}
           >
@@ -72,7 +72,7 @@ export function ActiveSessionScreen({
         </section>
       )}
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="tracker-stat-grid">
         <StatCard
           label="Session Time"
           value={
@@ -88,19 +88,16 @@ export function ActiveSessionScreen({
         />
       </section>
 
-      <section className="tracker-panel px-6 py-6 sm:px-8 sm:py-8">
-        <div className="space-y-6">
+      <section className="tracker-section-panel">
+        <div className="space-y-4">
           <SectionLabel>&mdash; Run History &mdash;</SectionLabel>
 
           {completedRuns.length > 0 ? (
-            <div className="space-y-3">
+            <div>
               {completedRuns.map((run, index) => (
-                <div
-                  key={run.id}
-                  className="tracker-copy-muted flex items-center justify-between border-t border-border/40 pt-4 first:border-t-0 first:pt-0"
-                >
-                  <span className="text-lg sm:text-2xl">Run #{index + 1}</span>
-                  <span className="tracker-display text-2xl text-primary sm:text-4xl">
+                <div key={run.id} className="tracker-run-history-row">
+                  <span className="text-sm sm:text-base">Run #{index + 1}</span>
+                  <span className="tracker-display text-base text-primary sm:text-lg">
                     {formatDuration(run.durationMs, {
                       includeHundredths: true,
                     })}
@@ -109,7 +106,7 @@ export function ActiveSessionScreen({
               ))}
             </div>
           ) : (
-            <div className="tracker-copy-muted text-lg">
+            <div className="tracker-copy-muted text-sm sm:text-base">
               {isDraft
                 ? "This session has not started yet. Start your first run to begin tracking."
                 : "No completed runs yet. Start your first run to begin tracking."}
@@ -117,7 +114,7 @@ export function ActiveSessionScreen({
           )}
 
           {activeSession?.activeRun ? (
-            <div className="tracker-copy-muted border-t border-border/40 pt-4 text-base sm:text-lg">
+            <div className="tracker-inline-note">
               A run is currently in progress. Use{" "}
               <span className="text-primary">End Run</span> to save it or{" "}
               <span className="text-primary">Cancel</span> to discard it.
@@ -130,7 +127,7 @@ export function ActiveSessionScreen({
         <section>
           <Button
             variant="outline"
-            className="tracker-action-secondary w-full py-8 text-3xl"
+            className="tracker-action-secondary h-12 w-full text-base"
             disabled={busyAction !== null}
             onClick={onDiscardDraft}
           >
@@ -138,9 +135,9 @@ export function ActiveSessionScreen({
           </Button>
         </section>
       ) : (
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="grid gap-2 md:grid-cols-2">
           <Button
-            className="tracker-action-primary py-8 text-3xl"
+            className="tracker-action-primary h-12 text-base"
             disabled={
               busyAction !== null ||
               activeSession?.activeRun !== null ||
@@ -152,11 +149,11 @@ export function ActiveSessionScreen({
           </Button>
           <Button
             variant="outline"
-            className="tracker-action-secondary py-8 text-3xl"
+            className="tracker-action-secondary h-12 text-base"
             disabled={busyAction !== null || !activeSession?.activeRun}
             onClick={onCancelRun}
           >
-            Cancel
+            Cancel Run
           </Button>
         </section>
       )}

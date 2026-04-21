@@ -7,12 +7,10 @@ export function StatCard({
 }) {
   return (
     <div className="tracker-stat-card">
-      <p className="tracker-copy-muted text-sm uppercase tracking-[0.28em]">
+      <p className="tracker-copy-muted text-[0.55rem] uppercase tracking-[0.24em]">
         {label}
       </p>
-      <p className="tracker-display text-3xl text-primary sm:text-5xl">
-        {value}
-      </p>
+      <p className="tracker-display text-lg text-primary sm:text-xl">{value}</p>
     </div>
   );
 }

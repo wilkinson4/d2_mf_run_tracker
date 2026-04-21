@@ -6,11 +6,11 @@ export function SummaryMetric({
   value: string;
 }) {
   return (
-    <div className="tracker-panel flex min-h-28 flex-col items-center justify-center gap-3 px-5 py-4 text-center">
-      <p className="tracker-copy-muted text-xs uppercase tracking-[0.28em] sm:text-sm">
+    <div className="tracker-summary-metric">
+      <p className="tracker-copy-muted text-[0.55rem] uppercase tracking-[0.24em]">
         {label}
       </p>
-      <p className="tracker-display text-2xl text-primary sm:text-4xl">
+      <p className="tracker-display text-sm text-primary sm:text-base">
         {value}
       </p>
     </div>

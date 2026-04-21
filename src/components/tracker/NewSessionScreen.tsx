@@ -22,48 +22,48 @@ export function NewSessionScreen({
   onStart: () => void;
 }) {
   return (
-    <div className="space-y-10">
+    <div className="tracker-screen">
       <SectionHeader title="New MF Session" />
 
-      <section className="space-y-10">
-        <div className="space-y-4">
+      <section className="space-y-4">
+        <div className="space-y-2">
           <SectionLabel>Area Name</SectionLabel>
           <Input
             value={areaName}
             onChange={(event) => onAreaNameChange(event.currentTarget.value)}
             placeholder="Enter farming area..."
-            className="tracker-display h-20 px-6 text-2xl text-foreground placeholder:text-muted-foreground/80 sm:text-4xl"
+            className="tracker-input"
           />
           {error ? (
-            <p className="text-sm text-destructive sm:text-base">{error}</p>
+            <p className="text-xs text-destructive sm:text-sm">{error}</p>
           ) : null}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-2 md:grid-cols-2">
           <Button
-            className="tracker-action-primary py-7 text-2xl"
+            className="tracker-action-primary h-12 text-base"
             onClick={onStart}
           >
             Start Session
           </Button>
           <Button
             variant="outline"
-            className="tracker-action-secondary py-7 text-2xl"
+            className="tracker-action-secondary h-12 text-base"
             onClick={onCancel}
           >
             Cancel
           </Button>
         </div>
 
-        <div className="border-t border-border/60 pt-8">
-          <div className="space-y-5">
+        <div className="border-t border-border/60 pt-3">
+          <div className="space-y-3">
             <SectionLabel>&mdash; Popular Areas &mdash;</SectionLabel>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-1.5 md:grid-cols-2">
               {popularAreas.map((area) => (
                 <button
                   type="button"
                   key={area}
-                  className="tracker-panel tracker-display px-6 py-5 text-left text-2xl text-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="tracker-popular-area"
                   onClick={() => onSelectArea(area)}
                 >
                   {area}

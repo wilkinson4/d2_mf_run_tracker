@@ -13,26 +13,26 @@ export function HomeScreen({
   onCreateSession: () => void;
 }) {
   return (
-    <div className="space-y-10">
+    <div className="tracker-screen">
       <SectionHeader title="Magic Finding Sessions" />
 
       <Button
-        className="tracker-action-primary w-full py-10 text-2xl"
+        className="tracker-action-primary h-14 w-full text-base sm:text-lg"
         onClick={onCreateSession}
       >
         + Start New Session
       </Button>
 
-      <section className="tracker-panel px-6 py-6 sm:px-8 sm:py-8">
-        <div className="space-y-8">
+      <section className="tracker-section-panel">
+        <div className="space-y-3">
           <SectionLabel>&mdash; Session History &mdash;</SectionLabel>
 
           {sessions.length === 0 ? (
-            <div className="tracker-copy-muted flex min-h-72 items-center justify-center text-center text-xl">
+            <div className="tracker-copy-muted tracker-history-empty">
               No sessions recorded yet
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-2">
               {sessions.map((session) => (
                 <SessionHistoryCard key={session.id} session={session} />
               ))}

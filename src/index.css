@@ -65,38 +65,38 @@
 }
 
 :root {
-  --background: #080702;
-  --foreground: #d6c58a;
-  --card: rgb(12 10 4 / 88%);
-  --card-foreground: #d6c58a;
-  --popover: #0c0903;
-  --popover-foreground: #d6c58a;
-  --primary: #d5b34b;
-  --primary-foreground: #110d03;
-  --secondary: #1a1507;
-  --secondary-foreground: #d6c58a;
-  --muted: #171207;
-  --muted-foreground: #8f8359;
-  --accent: #211907;
-  --accent-foreground: #f2e3a8;
-  --destructive: #b84a3b;
-  --border: rgb(122 100 30 / 72%);
-  --input: rgb(122 100 30 / 72%);
-  --ring: rgb(213 179 75 / 85%);
-  --chart-1: #d5b34b;
-  --chart-2: #c28d27;
-  --chart-3: #8f8359;
-  --chart-4: #5a4a1d;
-  --chart-5: #2e2409;
+  --background: #080503;
+  --foreground: #ded2bb;
+  --card: rgb(20 14 11 / 92%);
+  --card-foreground: #ded2bb;
+  --popover: #14100c;
+  --popover-foreground: #ded2bb;
+  --primary: #c0a76d;
+  --primary-foreground: #181108;
+  --secondary: #1b150f;
+  --secondary-foreground: #ded2bb;
+  --muted: #14100c;
+  --muted-foreground: #8c6f45;
+  --accent: #221a13;
+  --accent-foreground: #e9d8ab;
+  --destructive: #b15a4e;
+  --border: rgb(140 109 61 / 66%);
+  --input: rgb(140 109 61 / 66%);
+  --ring: rgb(192 167 109 / 85%);
+  --chart-1: #c0a76d;
+  --chart-2: #8c3c3b;
+  --chart-3: #b88b3d;
+  --chart-4: #5b4d2f;
+  --chart-5: #3d2a29;
   --radius: 0;
-  --sidebar: #0c0903;
-  --sidebar-foreground: #d6c58a;
-  --sidebar-primary: #d5b34b;
-  --sidebar-primary-foreground: #110d03;
-  --sidebar-accent: #1a1507;
-  --sidebar-accent-foreground: #f2e3a8;
-  --sidebar-border: rgb(122 100 30 / 72%);
-  --sidebar-ring: rgb(213 179 75 / 85%);
+  --sidebar: #14100c;
+  --sidebar-foreground: #ded2bb;
+  --sidebar-primary: #c0a76d;
+  --sidebar-primary-foreground: #181108;
+  --sidebar-accent: #1b150f;
+  --sidebar-accent-foreground: #e9d8ab;
+  --sidebar-border: rgb(140 109 61 / 66%);
+  --sidebar-ring: rgb(192 167 109 / 85%);
 }
 
 @layer base {
@@ -111,8 +111,8 @@
   body {
     @apply min-h-screen bg-background text-foreground;
     background-image:
-      radial-gradient(circle at top, rgb(89 71 21 / 18%), transparent 28%),
-      linear-gradient(180deg, rgb(17 13 3 / 90%), rgb(8 7 2));
+      radial-gradient(circle at top, rgb(118 73 46 / 18%), transparent 28%),
+      linear-gradient(180deg, rgb(20 11 8 / 95%), rgb(8 5 3));
   }
 
   button {
@@ -126,39 +126,54 @@
   }
 
   .tracker-shell {
-    @apply mx-auto flex min-h-screen w-full max-w-[1680px] flex-col gap-10 border border-border/80 px-4 py-6 sm:px-8 sm:py-10 lg:px-16 lg:py-12;
+    @apply mx-auto flex min-h-screen w-full max-w-none flex-col gap-4 border-x border-border/80 px-4 py-6 sm:px-7 sm:py-6;
     background:
-      linear-gradient(180deg, rgb(13 11 5 / 96%), rgb(10 8 3 / 94%)), rgb(8 7 2);
+      linear-gradient(180deg, rgb(21 12 8 / 97%), rgb(10 7 5 / 95%)), rgb(8 5 3);
     box-shadow:
-      inset 0 0 0 1px rgb(213 179 75 / 10%),
-      0 0 60px rgb(0 0 0 / 22%);
+      inset 0 0 0 1px rgb(255 255 255 / 4%),
+      0 0 60px rgb(0 0 0 / 30%);
   }
 
   .tracker-panel {
     @apply border border-border/70 bg-card/90;
-    box-shadow: inset 0 0 0 1px rgb(213 179 75 / 8%);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
   }
 
   .tracker-heading,
   .tracker-display {
     font-family: var(--font-display);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
   }
 
   .tracker-copy-muted {
     @apply text-muted-foreground;
   }
 
+  .tracker-screen {
+    @apply space-y-4 sm:space-y-5;
+  }
+
+  .tracker-section-panel {
+    @apply border border-border/70 bg-card/90 px-4 py-4 sm:px-[18px] sm:py-[14px];
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
+  }
+
+  .tracker-stat-grid {
+    @apply grid gap-1.5 sm:grid-cols-3;
+  }
+
   .tracker-stat-card {
-    @apply flex min-h-52 flex-col items-center justify-center gap-4 border border-border/70 bg-card/90 px-6 py-8 text-center;
-    box-shadow: inset 0 0 0 1px rgb(213 179 75 / 8%);
+    @apply flex min-h-20 flex-col items-center justify-center gap-1.5 border border-border/70 bg-card/90 px-3 py-3 text-center;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
   }
 
   .tracker-current-run-panel {
-    --tracker-current-run-accent: #ef950f;
+    --tracker-current-run-accent: #8c3c3b;
     @apply border bg-card/90;
-    border-color: rgb(239 149 15 / 85%);
-    box-shadow: inset 0 0 0 1px rgb(239 149 15 / 20%);
+    border-color: rgb(140 60 59 / 88%);
+    box-shadow:
+      inset 0 0 0 1px rgb(140 60 59 / 18%),
+      0 0 20px rgb(0 0 0 / 40%);
   }
 
   .tracker-action-primary {
@@ -169,5 +184,48 @@
   .tracker-action-secondary {
     @apply border border-border/70 bg-transparent uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:border-primary hover:bg-primary/6 hover:text-primary disabled:border-border/40 disabled:text-muted-foreground/60;
     font-family: var(--font-display);
+  }
+
+  .tracker-history-empty {
+    @apply flex min-h-40 items-center justify-center text-center text-base;
+  }
+
+  .tracker-run-history-row {
+    @apply flex items-center justify-between border-t border-border/40 py-2 text-muted-foreground first:border-t-0 first:pt-0 last:pb-0;
+  }
+
+  .tracker-session-card {
+    @apply border border-border/70 bg-card/90 px-4 py-3 sm:px-[18px] sm:py-3.5;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
+  }
+
+  .tracker-session-badge {
+    @apply inline-flex min-w-12 items-center justify-center border border-border/70 bg-card/90 px-2.5 py-1 text-[0.65rem] tracking-[0.08em] text-muted-foreground;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
+  }
+
+  .tracker-session-metrics {
+    @apply grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-5;
+  }
+
+  .tracker-summary-metric {
+    @apply flex min-h-16 flex-col items-center justify-center gap-1.5 border border-border/40 bg-black/18 px-2 py-2 text-center;
+  }
+
+  .tracker-inline-note {
+    @apply border-t border-border/40 pt-3 text-xs text-muted-foreground sm:text-sm;
+  }
+
+  .tracker-popular-area {
+    @apply border border-border/70 bg-card/90 px-4 py-3 text-left text-base text-foreground transition-colors hover:border-primary hover:text-primary sm:text-lg;
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
+  }
+
+  .tracker-input {
+    @apply h-[52px] px-4 text-xl text-foreground placeholder:text-muted-foreground/80 sm:text-[1.125rem];
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
   }
 }
