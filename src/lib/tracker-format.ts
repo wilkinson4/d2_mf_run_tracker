@@ -43,6 +43,14 @@ export function formatDuration(
   return `${base}.${hundredths.toString().padStart(2, "0")}`;
 }
 
+export function formatSessionDateShort(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(parseSqliteDate(value));
+}
+
 export function formatSessionDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",

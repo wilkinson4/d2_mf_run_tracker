@@ -1,3 +1,14 @@
+import {
+  CheckCircle,
+  Clock,
+  Hash,
+  History,
+  Timer,
+  Trophy,
+  XCircle,
+  Zap,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import type { ActiveSession } from "@/lib/tracker-db";
 import { formatDuration, parseSqliteDate } from "@/lib/tracker-format";
@@ -48,25 +59,41 @@ export function ActiveSessionScreen({
 
       {activeSession?.activeRun ? (
         <section className="tracker-current-run-panel flex flex-col items-center gap-3 px-4 py-4 text-center sm:px-5">
-          <SectionLabel>&mdash; Current Run &mdash;</SectionLabel>
+          <div className="flex items-center gap-1.5">
+            <Zap className="size-3 animate-pulse text-[var(--tracker-current-run-accent)]" />
+            <SectionLabel>Active Run</SectionLabel>
+          </div>
           <p className="tracker-display text-5xl text-[var(--tracker-current-run-accent)] sm:text-[3.25rem]">
             {formatDuration(currentRunElapsedMs, { includeHundredths: true })}
           </p>
-          <Button
-            className="tracker-action-primary h-11 min-w-[200px] px-8 text-base sm:text-lg"
-            disabled={busyAction !== null}
-            onClick={onToggleRun}
-          >
-            End Run
-          </Button>
+          <div className="flex w-full justify-center gap-2">
+            <Button
+              className="tracker-action-primary h-11 min-w-[160px] gap-2 px-6 text-base sm:text-lg"
+              disabled={busyAction !== null}
+              onClick={onToggleRun}
+            >
+              <CheckCircle className="size-4" />
+              End Run
+            </Button>
+            <Button
+              variant="outline"
+              className="tracker-action-secondary h-11 gap-2 px-5 text-base"
+              disabled={busyAction !== null}
+              onClick={onCancelRun}
+            >
+              <XCircle className="size-4" />
+              Cancel
+            </Button>
+          </div>
         </section>
       ) : (
         <section className="flex flex-col items-center gap-3 py-1 text-center">
           <Button
-            className="tracker-action-primary h-11 min-w-[200px] px-8 text-base sm:text-lg"
+            className="tracker-action-primary h-11 min-w-[200px] gap-2 px-8 text-base sm:text-lg"
             disabled={busyAction !== null}
             onClick={onToggleRun}
           >
+            <Zap className="size-4" />
             Start Run
           </Button>
         </section>
@@ -75,22 +102,31 @@ export function ActiveSessionScreen({
       <section className="tracker-stat-grid">
         <StatCard
           label="Session Time"
+          icon={<Clock className="size-4" />}
           value={
             sessionElapsedMs === null
               ? "--"
               : formatDuration(sessionElapsedMs, { includeHundredths: true })
           }
         />
-        <StatCard label="Runs" value={completedRuns.length} />
+        <StatCard
+          label="Runs"
+          icon={<Hash className="size-4" />}
+          value={completedRuns.length}
+        />
         <StatCard
           label="Avg Run Time"
+          icon={<Timer className="size-4" />}
           value={formatDuration(averageRunMs, { includeHundredths: true })}
         />
       </section>
 
       <section className="tracker-section-panel">
         <div className="space-y-4">
-          <SectionLabel>&mdash; Run History &mdash;</SectionLabel>
+          <div className="flex items-center gap-2">
+            <History className="size-3.5 text-muted-foreground/70" />
+            <SectionLabel>&mdash; Run History &mdash;</SectionLabel>
+          </div>
 
           {completedRuns.length > 0 ? (
             <div>
@@ -127,17 +163,18 @@ export function ActiveSessionScreen({
         <section>
           <Button
             variant="outline"
-            className="tracker-action-secondary h-12 w-full text-base"
+            className="tracker-action-secondary h-12 w-full gap-2 text-base"
             disabled={busyAction !== null}
             onClick={onDiscardDraft}
           >
+            <XCircle className="size-4" />
             Cancel
           </Button>
         </section>
       ) : (
         <section className="grid gap-2 md:grid-cols-2">
           <Button
-            className="tracker-action-primary h-12 text-base"
+            className="tracker-action-primary h-12 gap-2 text-base"
             disabled={
               busyAction !== null ||
               activeSession?.activeRun !== null ||
@@ -145,14 +182,16 @@ export function ActiveSessionScreen({
             }
             onClick={onEndSession}
           >
+            <Trophy className="size-4" />
             End Session
           </Button>
           <Button
             variant="outline"
-            className="tracker-action-secondary h-12 text-base"
+            className="tracker-action-secondary h-12 gap-2 text-base"
             disabled={busyAction !== null || !activeSession?.activeRun}
             onClick={onCancelRun}
           >
+            <XCircle className="size-4" />
             Cancel Run
           </Button>
         </section>
