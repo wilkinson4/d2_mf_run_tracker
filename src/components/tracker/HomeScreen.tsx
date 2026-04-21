@@ -8,9 +8,11 @@ import { SessionsSidebar } from "./SessionsSidebar";
 import { SessionsTable } from "./SessionsTable";
 
 export function HomeScreen({
+  onDeleteSession,
   sessions,
   onCreateSession,
 }: {
+  onDeleteSession: (sessionId: number) => Promise<void>;
   sessions: CompletedSessionSummary[];
   onCreateSession: () => void;
 }) {
@@ -27,7 +29,7 @@ export function HomeScreen({
       </Button>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_272px]">
-        <SessionsTable sessions={sessions} />
+        <SessionsTable onDeleteSession={onDeleteSession} sessions={sessions} />
         <SessionsSidebar sessions={sessions} />
       </div>
     </div>

@@ -18,6 +18,11 @@ type RunRow = {
   endedAt: string | null;
 };
 
+type SessionDeleteRow = {
+  id: number;
+  endedAt: string | null;
+};
+
 type FarmLocationRow = {
   id: number;
   name: string;
@@ -352,6 +357,32 @@ export async function cancelRun(runId: number, sessionId: number) {
 }
 
 export async function discardSession(sessionId: number) {
+  await deleteSession(sessionId);
+}
+
+export async function deleteCompletedSession(sessionId: number) {
+  const database = await getDatabase();
+  const rows = await database.select<SessionDeleteRow[]>(
+    `
+      SELECT
+        id,
+        ended_at AS endedAt
+      FROM sessions
+      WHERE id = ?
+      LIMIT 1
+    `,
+    [sessionId],
+  );
+  const session = rows[0];
+
+  if (!session) {
+    throw new Error("Unable to find the selected session.");
+  }
+
+  if (session.endedAt === null) {
+    throw new Error("Active sessions cannot be deleted from session history.");
+  }
+
   await deleteSession(sessionId);
 }
 
