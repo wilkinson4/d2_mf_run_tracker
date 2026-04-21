@@ -6,10 +6,20 @@
 
 ----
 
+<div>
+  <img src="home_screen.png" alt="Logo" width="1200" />
+</div>
+
 ## Features
 
 - Sessions and session history
 - Manual run tracking with hotkey support
+
+### Hotkeys
+#### Super Hotkey: Windows/Linux = `Ctrl`, MacOS = `Command`
+- `Super+Shift+S` -> Start/Stop Run
+- `Super+Shift+C` -> Cancel Run
+- `Super+Shift+E` -> End Session
 
 ## Planned Features
 

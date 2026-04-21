@@ -61,7 +61,7 @@ function NewSessionRoute() {
   };
 
   return (
-    <TrackerShell error={loadError} isLoading={isLoading}>
+    <TrackerShell error={loadError}>
       <NewSessionScreen
         areaName={areaName}
         error={formError}

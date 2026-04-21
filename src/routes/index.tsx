@@ -21,7 +21,7 @@ function IndexRoute() {
   }, [activeSession, isLoading, navigate]);
 
   return (
-    <TrackerShell error={loadError} isLoading={isLoading}>
+    <TrackerShell error={loadError}>
       <HomeScreen
         sessions={completedSessions}
         onCreateSession={() => {

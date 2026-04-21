@@ -20,6 +20,7 @@ pub fn run() {
         kind: MigrationKind::Up,
     }];
     tauri::Builder::default()
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:run_tracker.db", migrations)

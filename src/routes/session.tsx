@@ -155,7 +155,7 @@ function SessionRoute() {
   };
 
   return (
-    <TrackerShell error={screenError ?? loadError} isLoading={isLoading}>
+    <TrackerShell error={screenError ?? loadError}>
       <ActiveSessionScreen
         activeSession={resolvedActiveSession}
         busyAction={busyAction}

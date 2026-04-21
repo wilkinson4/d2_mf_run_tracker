@@ -1,4 +1,9 @@
 import {
+  register,
+  type ShortcutEvent,
+  unregister,
+} from "@tauri-apps/plugin-global-shortcut";
+import {
   CheckCircle,
   Clock,
   Hash,
@@ -8,6 +13,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { ActiveSession } from "@/lib/tracker-db";
@@ -16,6 +22,12 @@ import { formatDuration, parseSqliteDate } from "@/lib/tracker-format";
 import { SectionHeader } from "./SectionHeader";
 import { SectionLabel } from "./SectionLabel";
 import { StatCard } from "./StatCard";
+
+const SHORTCUTS = [
+  "CommandOrControl+Shift+S",
+  "CommandOrControl+Shift+C",
+  "CommandOrControl+Shift+E",
+] as const;
 
 type ActiveSessionScreenProps = {
   activeSession: ActiveSession | null;
@@ -52,6 +64,44 @@ export function ActiveSessionScreen({
       ? completedRuns.reduce((total, run) => total + (run.durationMs ?? 0), 0) /
         completedRuns.length
       : null;
+  const toggleRunRef = useRef(onToggleRun);
+  const cancelRunRef = useRef(onCancelRun);
+  const endSessionRef = useRef(onEndSession);
+  const busyActionRef = useRef(busyAction);
+
+  useEffect(() => {
+    toggleRunRef.current = onToggleRun;
+    cancelRunRef.current = onCancelRun;
+    busyActionRef.current = busyAction;
+    endSessionRef.current = onEndSession;
+  }, [busyAction, onCancelRun, onToggleRun, onEndSession]);
+
+  useEffect(() => {
+    const registerShortcuts = async () => {
+      await register(SHORTCUTS[0], (event: ShortcutEvent) => {
+        if (event.state === "Pressed") {
+          toggleRunRef.current();
+        }
+      });
+
+      await register(SHORTCUTS[1], (event: ShortcutEvent) => {
+        if (event.state === "Pressed") {
+          cancelRunRef.current();
+        }
+      });
+      await register(SHORTCUTS[2], (event: ShortcutEvent) => {
+        if (event.state === "Pressed") {
+          endSessionRef.current();
+        }
+      });
+    };
+
+    registerShortcuts();
+
+    return () => {
+      unregister([...SHORTCUTS]);
+    };
+  }, []);
 
   return (
     <div className="tracker-screen">
@@ -60,15 +110,15 @@ export function ActiveSessionScreen({
       {activeSession?.activeRun ? (
         <section className="tracker-current-run-panel flex flex-col items-center gap-3 px-4 py-4 text-center sm:px-5">
           <div className="flex items-center gap-1.5">
-            <Zap className="size-3 animate-pulse text-[var(--tracker-current-run-accent)]" />
+            <Zap className="size-3 animate-pulse text-(--tracker-current-run-accent)" />
             <SectionLabel>Active Run</SectionLabel>
           </div>
-          <p className="tracker-display text-5xl text-[var(--tracker-current-run-accent)] sm:text-[3.25rem]">
+          <p className="tracker-display text-5xl text-[--tracker-current-run-accent] sm:text-[3.25rem]">
             {formatDuration(currentRunElapsedMs, { includeHundredths: true })}
           </p>
           <div className="flex w-full justify-center gap-2">
             <Button
-              className="tracker-action-primary h-11 min-w-[160px] gap-2 px-6 text-base sm:text-lg"
+              className="tracker-action-primary h-11 min-w-40 gap-2 px-6 text-base sm:text-lg"
               disabled={busyAction !== null}
               onClick={onToggleRun}
             >
@@ -89,7 +139,7 @@ export function ActiveSessionScreen({
       ) : (
         <section className="flex flex-col items-center gap-3 py-1 text-center">
           <Button
-            className="tracker-action-primary h-11 min-w-[200px] gap-2 px-8 text-base sm:text-lg"
+            className="tracker-action-primary h-11 min-w-50 gap-2 px-8 text-base sm:text-lg"
             disabled={busyAction !== null}
             onClick={onToggleRun}
           >
@@ -172,9 +222,9 @@ export function ActiveSessionScreen({
           </Button>
         </section>
       ) : (
-        <section className="grid gap-2 md:grid-cols-2">
+        <section>
           <Button
-            className="tracker-action-primary h-12 gap-2 text-base"
+            className="tracker-action-primary h-12 w-full gap-2 text-base"
             disabled={
               busyAction !== null ||
               activeSession?.activeRun !== null ||
@@ -184,15 +234,6 @@ export function ActiveSessionScreen({
           >
             <Trophy className="size-4" />
             End Session
-          </Button>
-          <Button
-            variant="outline"
-            className="tracker-action-secondary h-12 gap-2 text-base"
-            disabled={busyAction !== null || !activeSession?.activeRun}
-            onClick={onCancelRun}
-          >
-            <XCircle className="size-4" />
-            Cancel Run
           </Button>
         </section>
       )}
