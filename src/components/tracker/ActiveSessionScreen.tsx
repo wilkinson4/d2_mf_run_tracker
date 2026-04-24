@@ -77,29 +77,46 @@ export function ActiveSessionScreen({
   }, [busyAction, onCancelRun, onToggleRun, onEndSession]);
 
   useEffect(() => {
-    const registerShortcuts = async () => {
-      await register(SHORTCUTS[0], (event: ShortcutEvent) => {
-        if (event.state === "Pressed") {
-          toggleRunRef.current();
-        }
-      });
+    let shortcutsRegistered = false;
 
-      await register(SHORTCUTS[1], (event: ShortcutEvent) => {
-        if (event.state === "Pressed") {
-          cancelRunRef.current();
-        }
-      });
-      await register(SHORTCUTS[2], (event: ShortcutEvent) => {
-        if (event.state === "Pressed") {
-          endSessionRef.current();
-        }
-      });
+    const registerShortcuts = async () => {
+      try {
+        await register(SHORTCUTS[0], (event: ShortcutEvent) => {
+          if (event.state === "Pressed") {
+            toggleRunRef.current();
+          }
+        });
+
+        await register(SHORTCUTS[1], (event: ShortcutEvent) => {
+          if (event.state === "Pressed") {
+            cancelRunRef.current();
+          }
+        });
+        await register(SHORTCUTS[2], (event: ShortcutEvent) => {
+          if (event.state === "Pressed") {
+            endSessionRef.current();
+          }
+        });
+
+        shortcutsRegistered = true;
+      } catch (error) {
+        console.warn(
+          "Global shortcuts unavailable in this environment.",
+          error,
+        );
+      }
     };
 
-    registerShortcuts();
+    void registerShortcuts();
 
     return () => {
-      unregister([...SHORTCUTS]);
+      if (!shortcutsRegistered) {
+        return;
+      }
+
+      void unregister([...SHORTCUTS]).catch((error) => {
+        console.warn("Failed to unregister global shortcuts.", error);
+      });
     };
   }, []);
 
