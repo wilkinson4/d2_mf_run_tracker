@@ -10,7 +10,6 @@ import {
   type PaginationState,
   type SortingState,
   useReactTable,
-  type VisibilityState,
 } from "@tanstack/react-table";
 import {
   ArrowDown,
@@ -24,7 +23,6 @@ import {
   MapPin,
   Repeat2,
   Search,
-  SlidersHorizontal,
   Timer,
   Trash2,
   Zap,
@@ -43,14 +41,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -65,16 +55,6 @@ import { formatDuration, formatSessionDateShort } from "@/lib/tracker-format";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 10;
-
-const COLUMN_LABELS: Record<string, string> = {
-  id: "Session ID",
-  locationName: "Area",
-  startedAt: "Date",
-  totalRuns: "Runs",
-  durationMs: "Duration",
-  averageRunMs: "Average",
-  fastestRunMs: "Fastest",
-};
 
 function DataTableColumnHeader<TData>({
   column,
@@ -97,7 +77,7 @@ function DataTableColumnHeader<TData>({
       variant="ghost"
       size="sm"
       className={cn(
-        "inline-flex h-auto items-center gap-1 rounded-none px-0 py-0 font-[family-name:--font-display] text-[0.56rem] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-transparent hover:text-primary data-[active=true]:text-primary",
+        "inline-flex h-auto items-center gap-1 rounded-none px-0 py-0 font-[--font-display] text-[0.56rem] font-medium uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-transparent hover:text-primary data-[active=true]:text-primary",
         className,
       )}
       data-active={sorted !== false}
@@ -118,7 +98,6 @@ export function SessionsTable({
   sessions: CompletedSessionSummary[];
 }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: "startedAt" },
   ]);
@@ -275,12 +254,10 @@ export function SessionsTable({
     columns,
     state: {
       columnFilters,
-      columnVisibility,
       pagination,
       sorting,
     },
     onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -358,40 +335,6 @@ export function SessionsTable({
             aria-label="Search sessions by area name"
           />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-1.5 text-xs text-muted-foreground"
-            >
-              <SlidersHorizontal className="size-3" />
-              Columns
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  checked={column.getIsVisible()}
-                  className="capitalize"
-                  onCheckedChange={(checked) =>
-                    column.toggleVisibility(Boolean(checked))
-                  }
-                >
-                  {COLUMN_LABELS[column.id]}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <span className="shrink-0 text-xs text-muted-foreground">
-          {filteredRowsCount} {filteredRowsCount === 1 ? "session" : "sessions"}
-        </span>
       </div>
 
       <div className="tracker-panel">
@@ -407,8 +350,8 @@ export function SessionsTable({
                     key={header.id}
                     className={cn(
                       "py-2.5",
-                      header.column.id === "id" && "w-[72px]",
-                      header.column.id === "actions" && "w-[52px] text-right",
+                      header.column.id === "id" && "w-18",
+                      header.column.id === "actions" && "w-13 text-right",
                     )}
                   >
                     {header.isPlaceholder
@@ -438,7 +381,7 @@ export function SessionsTable({
               currentPageRows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="border-b border-border/20 transition-colors hover:bg-primary/[0.025]"
+                  className="border-b border-border/20 transition-colors hover:bg-primary/2.5"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
