@@ -4,7 +4,54 @@ on:
   workflow_dispatch
 
 jobs:
+  prepare-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.release-vars.outputs.version }}
+      tag: ${{ steps.release-vars.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: determine release version
+        id: release-vars
+        run: |
+          VERSION=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=app-v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: create or update draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release-vars.outputs.tag }}
+          VERSION: ${{ steps.release-vars.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          notes_file="$(mktemp)"
+          cat <<'EOF' > "$notes_file"
+          See the assets to download this version and install.
+
+          - Windows installers are unsigned and may trigger Microsoft SmartScreen warnings.
+          - macOS DMGs are unsigned and may require bypassing Gatekeeper on first launch.
+          - Linux RPMs are signed, and Linux .deb/.rpm checksums, detached signatures, and AUR metadata are attached separately.
+          EOF
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" \
+              --title "D2 MF Tracker v$VERSION" \
+              --notes-file "$notes_file"
+          else
+            gh release create "$TAG" \
+              --target "$GITHUB_SHA" \
+              --title "D2 MF Tracker v$VERSION" \
+              --notes-file "$notes_file" \
+              --draft
+          fi
+
   publish-tauri:
+    needs: prepare-release
     permissions:
       contents: write
     strategy:
@@ -12,13 +59,31 @@ jobs:
       matrix:
         include:
           - platform: 'macos-latest' # for Arm based macs (M1 and above).
-            args: '--target aarch64-apple-darwin'
+            args: '--target aarch64-apple-darwin --bundles dmg'
+            target-dir: 'aarch64-apple-darwin/release'
+            artifact-kind: 'macos-aarch64'
+            upload-files: 'src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg'
           - platform: 'macos-latest' # for Intel based macs.
-            args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-24.04'
-            args: ''
+            args: '--target x86_64-apple-darwin --bundles dmg'
+            target-dir: 'x86_64-apple-darwin/release'
+            artifact-kind: 'macos-x64'
+            upload-files: 'src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg'
+          - platform: 'ubuntu-22.04'
+            args: '--bundles deb,rpm'
+            target-dir: 'release'
+            artifact-kind: 'linux-x64'
+            upload-files: |
+              release-assets/*.deb
+              release-assets/*.deb.sha256
+              release-assets/*.deb.sig
+              release-assets/*.rpm
+              release-assets/*.rpm.sha256
+              release-assets/*.rpm.sig
           - platform: 'windows-latest'
-            args: ''
+            args: '--bundles nsis --no-sign'
+            target-dir: 'release'
+            artifact-kind: 'windows-x64'
+            upload-files: 'src-tauri/target/release/bundle/nsis/*.exe'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -34,22 +99,231 @@ jobs:
           # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-24.04' # This must match the platform value defined above.
+        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: install frontend dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
-      - uses: tauri-apps/tauri-action@v1
+      - name: validate Linux signing secrets
+        if: matrix.artifact-kind == 'linux-x64'
+        shell: bash
+        env:
+          TAURI_SIGNING_RPM_KEY: ${{ secrets.TAURI_SIGNING_RPM_KEY }}
+          TAURI_SIGNING_RPM_KEY_PASSPHRASE: ${{ secrets.TAURI_SIGNING_RPM_KEY_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$TAURI_SIGNING_RPM_KEY" ]]; then
+            echo "Missing TAURI_SIGNING_RPM_KEY secret for Linux package signing." >&2
+            exit 1
+          fi
+
+          if [[ -z "$TAURI_SIGNING_RPM_KEY_PASSPHRASE" ]]; then
+            echo "Missing TAURI_SIGNING_RPM_KEY_PASSPHRASE secret for Linux package signing." >&2
+            exit 1
+          fi
+
+      - name: import Linux signing key
+        if: matrix.artifact-kind == 'linux-x64'
+        uses: crazy-max/ghaction-import-gpg@v7
+        with:
+          gpg_private_key: ${{ secrets.TAURI_SIGNING_RPM_KEY }}
+          passphrase: ${{ secrets.TAURI_SIGNING_RPM_KEY_PASSPHRASE }}
+          trust_level: 5
+
+      - name: build signed Linux bundles
+        if: matrix.artifact-kind == 'linux-x64'
+        env:
+          TAURI_SIGNING_RPM_KEY: ${{ secrets.TAURI_SIGNING_RPM_KEY }}
+          TAURI_SIGNING_RPM_KEY_PASSPHRASE: ${{ secrets.TAURI_SIGNING_RPM_KEY_PASSPHRASE }}
+        run: bun run tauri build ${{ matrix.args }}
+
+      - name: build release bundles
+        if: matrix.artifact-kind != 'linux-x64'
+        run: bun run tauri build ${{ matrix.args }}
+
+      - name: collect Linux release assets
+        if: matrix.artifact-kind == 'linux-x64'
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare-release.outputs.version }}
+          TARGET_DIR: ${{ matrix.target-dir }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p release-assets
+
+          copy_single_asset() {
+            local search_dir="$1"
+            local pattern="$2"
+            local destination="$3"
+            local match=""
+            local match_count=0
+            local candidate=""
+
+            while IFS= read -r -d '' candidate; do
+              match_count=$((match_count + 1))
+
+              if [ "$match_count" -eq 1 ]; then
+                match="$candidate"
+              fi
+            done < <(find "$search_dir" -maxdepth 1 -type f -name "$pattern" -print0)
+
+            if [ "$match_count" -ne 1 ]; then
+              echo "Expected exactly one asset for $search_dir/$pattern, found $match_count." >&2
+              exit 1
+            fi
+
+            cp "$match" "$destination"
+          }
+
+          bundle_root="src-tauri/target/$TARGET_DIR/bundle"
+          copy_single_asset "$bundle_root/deb" '*.deb' "release-assets/d2-mf-tracker_${VERSION}_amd64.deb"
+          copy_single_asset "$bundle_root/rpm" '*.rpm' "release-assets/d2-mf-tracker_${VERSION}_x86_64.rpm"
+
+      - name: generate AUR metadata
+        if: matrix.artifact-kind == 'linux-x64'
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare-release.outputs.version }}
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          pkgname='d2-mf-tracker'
+          repo_url="https://github.com/$REPOSITORY"
+          deb_asset="d2-mf-tracker_${VERSION}_amd64.deb"
+          install_script="${pkgname}.install"
+          deb_sha="$(shasum -a 256 "release-assets/$deb_asset" | awk '{print $1}')"
+
+          cat <<'EOF' > "release-assets/$install_script"
+          post_install() {
+            gtk-update-icon-cache -q -t -f usr/share/icons/hicolor
+            update-desktop-database -q
+          }
+
+          post_upgrade() {
+            post_install
+          }
+
+          post_remove() {
+            gtk-update-icon-cache -q -t -f usr/share/icons/hicolor
+            update-desktop-database -q
+          }
+          EOF
+
+          cat <<EOF > release-assets/PKGBUILD
+          pkgname=${pkgname}
+          pkgver=${VERSION}
+          pkgrel=1
+          pkgdesc="A lightweight cross-platform desktop app for manually tracking Diablo 2 magic find sessions."
+          arch=('x86_64')
+          url="${repo_url}"
+          license=('MIT')
+          depends=('cairo' 'desktop-file-utils' 'gdk-pixbuf2' 'glib2' 'gtk3' 'hicolor-icon-theme' 'libsoup3' 'pango' 'webkit2gtk-4.1')
+          options=('!strip' '!debug')
+          install=${install_script}
+          _deb="${deb_asset}"
+          source=("${install_script}")
+          source_x86_64=("${repo_url}/releases/download/${TAG}/\${_deb}")
+          sha256sums=('SKIP')
+          sha256sums_x86_64=('${deb_sha}')
+
+          package() {
+            bsdtar -xf "\${srcdir}/\${_deb}" -C "\${srcdir}"
+
+            local data_archive
+            data_archive="\$(find "\${srcdir}" -maxdepth 1 -name 'data.tar.*' -print -quit)"
+
+            if [[ -z "\${data_archive}" ]]; then
+              echo "Unable to locate deb payload archive." >&2
+              exit 1
+            fi
+
+            bsdtar -xf "\${data_archive}" -C "\${pkgdir}"
+          }
+          EOF
+
+          cat <<EOF > release-assets/.SRCINFO
+          pkgbase = ${pkgname}
+          	pkgdesc = A lightweight cross-platform desktop app for manually tracking Diablo 2 magic find sessions.
+          	pkgver = ${VERSION}
+          	pkgrel = 1
+          	url = ${repo_url}
+          	arch = x86_64
+          	license = MIT
+          	depends = cairo
+          	depends = desktop-file-utils
+          	depends = gdk-pixbuf2
+          	depends = glib2
+          	depends = gtk3
+          	depends = hicolor-icon-theme
+          	depends = libsoup3
+          	depends = pango
+          	depends = webkit2gtk-4.1
+          	options = !strip
+          	options = !debug
+          	install = ${install_script}
+          	source = ${install_script}
+          	source_x86_64 = ${repo_url}/releases/download/${TAG}/${deb_asset}
+          	sha256sums = SKIP
+          	sha256sums_x86_64 = ${deb_sha}
+
+          pkgname = ${pkgname}
+          EOF
+
+      - name: sign Linux release assets
+        if: matrix.artifact-kind == 'linux-x64'
+        shell: bash
+        env:
+          TAURI_SIGNING_RPM_KEY_PASSPHRASE: ${{ secrets.TAURI_SIGNING_RPM_KEY_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+
+          for asset in release-assets/*.deb release-assets/*.rpm; do
+            shasum -a 256 "$asset" > "$asset.sha256"
+            gpg \
+              --batch \
+              --yes \
+              --armor \
+              --pinentry-mode loopback \
+              --passphrase "$TAURI_SIGNING_RPM_KEY_PASSPHRASE" \
+              --detach-sign \
+              --output "$asset.sig" \
+              "$asset"
+          done
+
+      - name: upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.tag }}
+          draft: true
+          files: ${{ matrix.upload-files }}
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: publish AUR package
+        if: matrix.artifact-kind == 'linux-x64'
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.3
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: 'App v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}
+          pkgname: d2-mf-tracker
+          pkgbuild: release-assets/PKGBUILD
+          assets: |
+            release-assets/.SRCINFO
+            release-assets/d2-mf-tracker.install
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update AUR package to v${{ needs.prepare-release.outputs.version }}
+          ssh_keyscan_types: rsa,ecdsa,ed25519

@@ -26,6 +26,16 @@
 - Auto-tracking for offline mode
 - In-game overlay
 
+## Releases
+
+The publish workflow creates a draft GitHub release with these assets:
+
+- Windows: unsigned NSIS `.exe` installer
+- macOS: unsigned `.dmg` installers for Apple Silicon and Intel
+- Linux: signed `.rpm` packages, `.deb`/`.rpm` checksums and detached signatures, plus AUR `PKGBUILD` metadata assets
+
+Unsigned Windows installers will show SmartScreen warnings, and unsigned macOS DMGs may require a manual Gatekeeper bypass on first launch.
+
 ### Development
 
 ```bash

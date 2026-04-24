@@ -1,9 +1,12 @@
 [package]
 name = "d2_mf_tracker"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A lightweight cross-platform desktop app for manually tracking Diablo 2 magic find sessions."
+authors = ["William Wilkinson"]
 edition = "2021"
+license = "MIT"
+homepage = "https://github.com/wilkinson4/d2_mf_run_tracker"
+repository = "https://github.com/wilkinson4/d2_mf_run_tracker"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -26,4 +29,3 @@ tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
-

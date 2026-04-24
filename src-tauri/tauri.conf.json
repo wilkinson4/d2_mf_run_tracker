@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "D2 MF Tracker",
   "version": "0.1.0",
-  "identifier": "com.D2MfTracker.app",
+  "identifier": "com.wilkinson4.d2mftracker",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -24,14 +24,36 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis", "dmg", "deb", "rpm"],
+    "publisher": "William Wilkinson",
+    "homepage": "https://github.com/wilkinson4/d2_mf_run_tracker",
+    "copyright": "Copyright (c) 2026 William Wilkinson",
+    "license": "MIT",
+    "licenseFile": "../LICENSE",
+    "category": "Utility",
+    "shortDescription": "A lightweight cross-platform desktop app for manually tracking Diablo 2 magic find sessions.",
+    "longDescription": "D2 MF Tracker is a lightweight cross-platform desktop app for manually tracking Diablo 2 magic find sessions, including session history, per-run tracking, and desktop hotkeys.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico"
+      }
+    },
+    "linux": {
+      "deb": {},
+      "rpm": {
+        "release": "1"
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    }
   },
   "plugins": {
     "sql": {
